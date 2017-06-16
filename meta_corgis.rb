@@ -1,3 +1,4 @@
+require 'byebug'
 class SnackBox
   SNACK_BOX_DATA = {
     1 => {
@@ -107,19 +108,31 @@ class MetaCorgiSnacks
   def initialize(snack_box, box_id)
     @snack_box = snack_box
     @box_id = box_id
-  end
+    snack_box.methods.grep(/^get_(.*)_info$/) {
+      debugger
+      MetaCorgiSnacks.define_snack $1
+    }
 
-  def method_missing(name, *args)
-    treat_name = name.to_s
-    first_m = "get_#{treat_name}_info"
-    second_m = "get_#{treat_name}_tastiness"
-    f_ans = @snack_box.send(first_m, @box_id)
-    s_ans = @snack_box.send(second_m, @box_id)
-    "#{treat_name.capitalize}: #{f_ans}: #{s_ans}"
   end
+  # #
+  # def method_missing(name, *args)
+  #   treat_name = name.to_s
+  #   first_m = "get_#{treat_name}_info"
+  #   second_m = "get_#{treat_name}_tastiness"
+  #   f_ans = @snack_box.send(first_m, @box_id)
+  #   s_ans = @snack_box.send(second_m, @box_id)
+  #   "#{treat_name.capitalize}: #{f_ans}: #{s_ans}"
+  # end
 
 
   def self.define_snack(name)
-    # Your code goes here...
+    define_method(name) {
+      treat_name = name.to_s
+      first_m = "get_#{treat_name}_info"
+      second_m = "get_#{treat_name}_tastiness"
+      f_ans = @snack_box.send(first_m, @box_id)
+      s_ans = @snack_box.send(second_m, @box_id)
+    p "#{treat_name.capitalize}: #{f_ans}: #{s_ans}"
+     }
   end
 end
